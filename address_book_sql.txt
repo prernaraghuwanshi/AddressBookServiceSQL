@@ -1,0 +1,117 @@
+#UC1: Create Address Book Service Database
+> create database address_book_service;
+> use address_book_service;
+
+#UC2: Create address book table
+> create table address_book
+    -> (
+    -> first_name VARCHAR(50) NOT NULL,
+    -> last_name VARCHAR(100) NOT NULL,
+    -> address VARCHAR(100) NOT NULL,
+    -> city VARCHAR(30) NOT NULL,
+    -> state VARCHAR(30) NOT NULL,
+    -> zip VARCHAR(7) NOT NULL,
+    -> phone_number VARCHAR(10) NOT NULL,
+    -> email VARCHAR(100) NOT NULL,
+    -> PRIMARY KEY(phone_number)
+    -> );
+
+#UC3: Insert records to address book table
+> insert into address_book(first_name,last_name,address,city,state,zip,phone_number,email) values
+    -> ('Prerna','Raghuwanshi','xyz street','Bhopal','MP','462003','9475976187','xyz@gmail.com'),
+    -> ('Sohini','Bera','abc lane','Chennai','TN','222222','9087654321','abc@gmail.com'),
+    -> ('Ishika','Mitra','qwerty','Bhopal','MP','462009','9090909090','qwert@gamil.com'),
+    -> ('Nivedita','Menon','something','Bhopal','MP','462008','2323232323','dontknow@gmail.com');
+
+#UC4: Edit existing contact
+> update address_book set address='here' where first_name='Ishika';
+
+#UC5: Delete contact
+> delete from address_book where first_name='Nivedita';
+
+#UC6: Retrieve person belonging to city/state
+> select * from address_book where city='Bhopal';
+> select * from address_book where state='MP';
+
+#UC7: Count of person in a city/state
+> select city, count(city) from address_book group by city;
+> select state, count(state) from address_book group by state;
+
+#UC8: Given city, sort names alphabetically
+> select * from address_book where city='Bhopal' order by first_name;
+
+#UC9: Identify address book with name and type
+> alter table address_book add address_book_name VARCHAR(30);
+> alter table address_book add type VARCHAR(30);
+> update address_book set address_book_name='addr1';
+> update address_book set type='Friends' where first_name='Sohini' or first_name='Ishika';
+> update address_book set type='Colleague' where first_name='Prerna' or first_name='Rahul';
+> select * from address_book;
+
+#UC10: Count by type
+> select type,count(type) from address_book group by type;
+
+#UC11: Add person as Friend and Colleague
+> alter table address_book drop primary key;
+> insert into address_book(first_name,last_name,address,city,state,zip,phone_number,email,address_book_name,type) values  ('Rahul','Verma','xyzabc street','Bhopal','MP','462003','9475976087','xyz123@gmail.com','addr1','Friends');
+
+#UC12: ER diagram
+Had to delete previous table to incorporate primary key
+
+// Contact table
+> create table contact
+    -> (
+    -> contact_id int not null auto_increment,
+    -> first_name VARCHAR(50) NOT NULL,
+    -> last_name VARCHAR(100) NOT NULL,
+    -> address VARCHAR(100) NOT NULL,
+    -> city VARCHAR(30) NOT NULL,
+    -> state VARCHAR(30) NOT NULL,
+    -> zip VARCHAR(7) NOT NULL,
+    -> phone_number VARCHAR(10) NOT NULL,
+    -> email VARCHAR(100) NOT NULL,
+    -> primary key(contact_id)
+    -> );
+> insert into contact(first_name,last_name,address,city,state,zip,phone_number,email) values
+    ->     ('Prerna','Raghuwanshi','xyz street','Bhopal','MP','462003','9475976187','xyz@gmail.com'),
+    ->     ('Sohini','Bera','abc lane','Chennai','TN','222222','9087654321','abc@gmail.com'),
+    ->     ('Ishika','Mitra','qwerty','Bhopal','MP','462009','9090909090','qwert@gamil.com'),
+    ->     ('Nivedita','Menon','something','Bhopal','MP','462008','2323232323','dontknow@gmail.com');
+
+//Address Book table
+> create table address_book
+    -> (
+    -> address_book_id int not null auto_increment,
+    -> address_book_name varchar(100) not null,
+    -> primary key(address_book_id)
+    -> );
+> insert into address_book(address_book_name) values
+    -> ('addr1'),('addr2');
+
+//Contact listing table
+> create table contact_listing
+    -> (
+    -> address_book_id int not null references address_book(address_book_id),
+    -> contact_id int not null references contact(contact_id),
+    -> type varchar(100),
+    -> );
+> insert into contact_listing values
+    -> (1,1,'Friend'),
+    -> (1,1,'Colleague'),
+    -> (1,2,'Friend'),
+    -> (2,3,'Family'),
+    -> (2,4,'Colleague');
+
+
+#UC13: Queries
+// uc6: Retrieve person belonging to a city
+> select contact.first_name from contact where city='Bhopal';
+
+// uc7: Size of address book by city
+> select city,count(city) from contact group by(city);
+
+// uc8: Sort alphabetically given city
+> select * from contact where city='Bhopal' order by first_name;
+
+// uc10: Count by type
+> select type,count(type) from contact_listing group by (type);
